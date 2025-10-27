@@ -24,4 +24,9 @@ class Biodata extends Model
         if (!$this->foto) return null;
         return Storage::url($this->foto);
     }
+    
+    protected $casts = [
+    'tgl_lahir' => 'date',
+];
+
 }
