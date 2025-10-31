@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use HasFactory;
-    class Produk extends Model
+
+class Produk extends Model
 {
-     
+    protected $fillable = ['nama_produk', 'harga', 'stok'];
 
-    protected $fillable = ['nama', 'deskripsi', 'harga', 'image'];
-    protected $visible  = ['nama', 'deskripsi', 'harga', 'image'];
+    public function detailTransaksis()
+    {
+        return $this->hasMany(DetailTransaksi::class);
+    }
 }
-
 

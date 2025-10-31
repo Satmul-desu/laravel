@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\Dosen;
+use App\Models\Hobi;
 
 class MahasiswaController extends Controller
 {
@@ -23,7 +24,8 @@ class MahasiswaController extends Controller
     public function create()
     {
         $dosen = Dosen::all();
-        return view('mahasiswa.create',compact('dosen'));
+        $hobi = Hobi::all();
+        return view('mahasiswa.create',compact('dosen','hobi'));
     }
 
     /**
@@ -42,7 +44,8 @@ $mahasiswa->nim      = $request->nim;
 $mahasiswa->kelas = $request->kelas ?? 'Belum ditentukan';
 $mahasiswa->id_dosen = $request->id_dosen;
 $mahasiswa->save();
-
+// attach(menampilkan banyak data atau many to many)
+$mahasiswa->hobi()->attach($request->hobi);
 return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil disimpan!');
 
 
@@ -64,7 +67,8 @@ return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil disi
     {
          $mahasiswa = Mahasiswa::findOrFail($id);
          $dosen = Dosen::all();
-        return view('mahasiswa.edit',compact('mahasiswa','dosen'));
+         $hobi = Hobi::all();
+        return view('mahasiswa.edit',compact('mahasiswa','dosen','hobi'));
     }
 
     /**
@@ -84,7 +88,8 @@ $mahasiswa->nim      = $request->nim;
 $mahasiswa->kelas = $request->kelas ?? 'Belum ditentukan';
 $mahasiswa->id_dosen = $request->id_dosen;
 $mahasiswa->save();
-
+// sync (memperbarui data yang di ubah dari many to many
+$mahasiswa->hobi()->sync($request->hobi);
 return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil diperbarui!');
 
     }
@@ -95,7 +100,11 @@ return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil dipe
     public function destroy(string $id)
     {
         $mahasiswa = Mahasiswa::findOrFail($id);
+         // detach (menghapus data yang terkait dari mahasiswa dan hobi (many to many)
+        // menghapus data di relasi table pivot
+        $mahasiswa->hobi()->detach();
         $mahasiswa->delete();
+      
         return redirect()->route('mahasiswa.index');
     }
 }
