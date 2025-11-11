@@ -7,9 +7,18 @@ use Illuminate\Http\Request;
 
 class TransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transaksis = Transaksi::with('pelanggan')->get();
+        $query = Transaksi::with('pelanggan');
+
+        // Search berdasarkan kode transaksi
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('kode_transaksi', 'like', '%' . $search . '%');
+        }
+
+        $transaksis = $query->paginate(10);
+
         return view('transaksi.index', compact('transaksis'));
     }
 

@@ -6,12 +6,19 @@ use Illuminate\Http\Request;
 
 class PelangganController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-   $pelanggans = Pelanggan::all();
-return view('pelanggan.index', compact('pelanggans'));
+        $query = Pelanggan::query();
 
+        // Search berdasarkan nama
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
 
+        $pelanggans = $query->paginate(10);
+
+        return view('pelanggan.index', compact('pelanggans'));
     }
 
     public function create()

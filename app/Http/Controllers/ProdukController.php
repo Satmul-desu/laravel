@@ -6,9 +6,18 @@ use Illuminate\Http\Request;
 
 class ProdukController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $produks = Produk::all();
+        $query = Produk::query();
+
+        // Search berdasarkan nama produk
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('nama_produk', 'like', '%' . $search . '%');
+        }
+
+        $produks = $query->paginate(10);
+
         return view('produk.index', compact('produks'));
     }
 

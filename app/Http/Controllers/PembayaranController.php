@@ -7,9 +7,19 @@ use Illuminate\Http\Request;
 
 class PembayaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pembayarans = Pembayaran::with('transaksi')->get();
+        $query = Pembayaran::with('transaksi');
+
+        // Search berdasarkan kode transaksi
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->whereHas('transaksi', function($q) use ($search) {
+                $q->where('kode_transaksi', 'like', '%' . $search . '%');
+            });
+        }
+
+        $pembayarans = $query->paginate(10);
         return view('pembayaran.index', compact('pembayarans'));
     }
 
@@ -25,8 +35,7 @@ public function store(Request $request)
     $request->validate([
         'transaksi_id' => 'required',
         'jumlah_bayar' => 'required|numeric',
-        'metode' => 'required',
-        'tanggal_bayar' => 'required|date'
+        'metode' => 'required'
     ]);
 
     // Ambil transaksi biar bisa hitung kembalian
@@ -36,7 +45,6 @@ public function store(Request $request)
         'transaksi_id' => $request->transaksi_id,
         'jumlah_bayar' => $request->jumlah_bayar,
         'metode' => $request->metode,
-        'tanggal_bayar' => $request->tanggal_bayar,
         'kembalian' => $request->jumlah_bayar - $transaksi->total_harga,
     ]);
 

@@ -24,5 +24,14 @@ class Pembayaran extends Model
     {
         return $this->belongsTo(Transaksi::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->tanggal_bayar = now();
+        });
+    }
 }
 

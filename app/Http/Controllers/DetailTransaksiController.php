@@ -8,11 +8,18 @@ use Illuminate\Http\Request;
 
 class DetailTransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $details = DetailTransaksi::with(['transaksi.pelanggan', 'produk', 'transaksi.pembayaran'])->get();
-        return view('detail_transaksi.index', compact('details'));
+        $query = DetailTransaksi::with(['transaksi.pelanggan', 'produk', 'transaksi.pembayaran']);
 
+        // Search berdasarkan ID
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('id', 'like', '%' . $search . '%');
+        }
+
+        $details = $query->paginate(10);
+        return view('detail_transaksi.index', compact('details'));
     }
 
     public function create()
